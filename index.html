@@ -1,59 +1,132 @@
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0f1117">
+<title>Golf Shot Calculator</title>
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-.wrap { padding: 1rem 0; font-family: var(--font-sans); }
-.card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.25rem; margin-bottom: 12px; }
-.card-title { font-size: 12px; font-weight: 500; color: var(--color-text-secondary); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 14px; }
-.field { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+:root {
+  --bg: #0f1117;
+  --bg2: #1a1d27;
+  --bg3: #22263a;
+  --border: rgba(255,255,255,0.08);
+  --text: #f0f2ff;
+  --text2: #8b90a8;
+  --text3: #5a5f78;
+  --accent: #4a9eff;
+  --accent2: #2d7dd2;
+  --green: #22c55e;
+  --yellow: #eab308;
+  --red: #ef4444;
+  --green-bg: #052e16;
+  --yellow-bg: #1c1400;
+  --red-bg: #1f0a0a;
+  --radius: 12px;
+  --radius-sm: 8px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
+
+.header { background: var(--bg2); border-bottom: 1px solid var(--border); padding: 14px 16px; display: flex; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 10; }
+.header-icon { font-size: 22px; }
+.header-title { font-size: 17px; font-weight: 600; }
+.header-sub { font-size: 11px; color: var(--text3); margin-top: 1px; }
+
+.wrap { padding: 12px; max-width: 480px; margin: 0 auto; }
+.card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; margin-bottom: 10px; }
+.card-title { font-size: 11px; font-weight: 600; color: var(--text3); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 12px; }
+
+.field { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
 .field:last-child { margin-bottom: 0; }
-.field label { font-size: 14px; color: var(--color-text-secondary); width: 150px; flex-shrink: 0; }
-.field input[type=number] { flex: 1; }
-.field select { flex: 1; }
-.val { font-size: 14px; font-weight: 500; color: var(--color-text-primary); min-width: 52px; text-align: right; }
-.bubble-group { display: flex; gap: 8px; flex-wrap: wrap; }
-.bubble { display: flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; border: 0.5px solid var(--color-border-secondary); background: var(--color-background-secondary); font-size: 13px; color: var(--color-text-secondary); cursor: pointer; user-select: none; transition: background 0.15s, color 0.15s; }
+.field label { font-size: 13px; color: var(--text2); width: 110px; flex-shrink: 0; }
+
+input[type=number], select {
+  flex: 1; background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  color: var(--text); font-size: 15px; padding: 10px 12px; outline: none; width: 100%;
+  -webkit-appearance: none; appearance: none;
+}
+input[type=number]:focus, select:focus { border-color: var(--accent); }
+select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238b90a8' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+
+.bubble-group { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
+.bubble { display: inline-flex; align-items: center; padding: 7px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--bg3); font-size: 13px; color: var(--text2); cursor: pointer; user-select: none; transition: all 0.15s; white-space: nowrap; }
 .bubble input[type=radio] { display: none; }
-.bubble.selected { background: var(--color-background-info); color: var(--color-text-info); border-color: var(--color-border-info); font-weight: 500; }
-.bubble-green.selected { background: #EAF3DE; color: #27500A; border-color: #27500A44; }
-.bubble-yellow.selected { background: #FAEEDA; color: #633806; border-color: #63380644; }
-.bubble-red.selected { background: #FCEBEB; color: #791F1F; border-color: #791F1F44; }
-.slope-sub { font-size: 11px; color: var(--color-text-tertiary); margin: -6px 0 10px 0; }
-.divider { border: none; border-top: 0.5px solid var(--color-border-tertiary); margin: 14px 0; }
-.wind-section { display: flex; align-items: center; gap: 24px; }
-.compass-wrap { display: flex; flex-direction: column; align-items: center; gap: 8px; flex-shrink: 0; }
-.compass-label { font-size: 11px; color: var(--color-text-tertiary); text-align: center; }
-.wind-inputs { flex: 1; display: flex; flex-direction: column; gap: 12px; }
-.wind-dir-display { font-size: 22px; font-weight: 500; color: var(--color-text-primary); }
-.wind-dir-sub { font-size: 12px; color: var(--color-text-tertiary); margin-top: 2px; }
-.wind-components { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px; }
-.comp-box { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 8px 10px; }
-.comp-label { font-size: 11px; color: var(--color-text-tertiary); }
-.comp-value { font-size: 14px; font-weight: 500; color: var(--color-text-primary); }
-.output-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.25rem; margin-bottom: 12px; }
-.out3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 12px; }
-.output-box { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 14px; text-align: center; }
-.output-label { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 5px; }
-.output-value { font-size: 28px; font-weight: 500; color: var(--color-text-primary); line-height: 1; }
-.output-sub { font-size: 11px; color: var(--color-text-tertiary); margin-top: 5px; }
-.aim-box { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 14px 16px; margin-bottom: 10px; }
-.aim-row { display: flex; justify-content: space-between; align-items: baseline; padding: 4px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
-.aim-row:last-child { border-bottom: none; }
-.aim-label-sm { font-size: 11px; color: var(--color-text-tertiary); min-width: 80px; }
-.aim-val { font-size: 14px; font-weight: 500; color: var(--color-text-primary); text-align: right; }
-.breakdown { font-size: 12px; color: var(--color-text-secondary); line-height: 2; border-top: 0.5px solid var(--color-border-tertiary); padding-top: 10px; }
-.breakdown strong { color: var(--color-text-primary); font-weight: 500; }
-.lie-wrap { display: flex; flex-direction: column; flex: 1; gap: 2px; }
-.lie-range { display: flex; justify-content: space-between; font-size: 11px; color: var(--color-text-tertiary); }
+.bubble.selected { background: var(--accent2); color: #fff; border-color: var(--accent); font-weight: 500; }
+.bubble-green.selected { background: var(--green-bg); color: var(--green); border-color: var(--green); }
+.bubble-yellow.selected { background: var(--yellow-bg); color: var(--yellow); border-color: var(--yellow); }
+.bubble-red.selected { background: var(--red-bg); color: var(--red); border-color: var(--red); }
+
+.wind-section { display: flex; gap: 14px; align-items: flex-start; margin-bottom: 12px; }
+.compass-wrap { display: flex; flex-direction: column; align-items: center; gap: 6px; flex-shrink: 0; }
+.compass-label { font-size: 10px; color: var(--text3); text-align: center; line-height: 1.3; }
+.wind-info { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.wind-dir-name { font-size: 24px; font-weight: 700; line-height: 1; }
+.wind-dir-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.wind-speed-row { display: flex; align-items: center; gap: 8px; }
+.wind-speed-row label { font-size: 13px; color: var(--text2); white-space: nowrap; }
+.wind-speed-row input { width: 70px; flex: none; }
+.comp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.comp-box { background: var(--bg3); border-radius: var(--radius-sm); padding: 8px 10px; }
+.comp-label { font-size: 10px; color: var(--text3); margin-bottom: 2px; }
+.comp-val { font-size: 13px; font-weight: 600; }
+
+.slope-divider { border: none; border-top: 1px solid var(--border); margin: 12px 0; }
+.slope-sub { font-size: 11px; color: var(--text3); margin-bottom: 8px; }
+
+.lie-wrap { flex: 1; }
+.lie-labels { display: flex; justify-content: space-between; font-size: 10px; color: var(--text3); margin-top: 4px; }
+input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 4px; border-radius: 2px; background: var(--bg3); outline: none; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; background: var(--accent); cursor: pointer; border: 2px solid var(--bg2); }
+
+/* BIG OUTPUT */
+.output-card { background: var(--bg2); border: 1px solid var(--accent2); border-radius: var(--radius); padding: 16px; margin-bottom: 10px; }
+.output-card .card-title { margin-bottom: 16px; }
+
+.big-result { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.big-box { background: var(--bg3); border-radius: var(--radius-sm); padding: 16px 12px; text-align: center; }
+.big-label { font-size: 11px; color: var(--text3); margin-bottom: 6px; letter-spacing: 0.04em; }
+.big-value { font-size: 48px; font-weight: 800; line-height: 1; color: var(--accent); }
+.big-unit { font-size: 13px; color: var(--text3); margin-top: 4px; }
+.big-value-aim { font-size: 32px; font-weight: 800; line-height: 1; color: var(--text); }
+.aim-dir { font-size: 13px; color: var(--text2); margin-top: 4px; font-weight: 500; }
+
+.instruction-box { background: var(--bg3); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 12px; text-align: center; }
+.instruction-text { font-size: 16px; font-weight: 600; color: var(--text); line-height: 1.4; }
+.instruction-sub { font-size: 12px; color: var(--text3); margin-top: 6px; }
+
+.breakdown { font-size: 11px; color: var(--text3); line-height: 1.9; border-top: 1px solid var(--border); padding-top: 10px; }
+.breakdown strong { color: var(--accent); }
+.breakdown-row { display: flex; justify-content: space-between; }
+.breakdown-label { color: var(--text3); }
+.breakdown-val { color: var(--text2); font-weight: 500; }
 </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-icon">⛳</div>
+  <div>
+    <div class="header-title">Golf Shot Calculator</div>
+    <div class="header-sub">Wind · Elevation · Slope · Rollout</div>
+  </div>
+</div>
 
 <div class="wrap">
 
   <div class="card">
     <div class="card-title">Distance</div>
-    <div class="field"><label>Yards to pin</label><input type="number" id="base" value="150" min="1" max="350" oninput="calc()"></div>
-    <div class="field"><label>Elevation (ft)</label><input type="number" id="elev" value="0" min="0" max="100" oninput="calc()"></div>
     <div class="field">
-      <label>Elevation type</label>
+      <label>Yards to pin</label>
+      <input type="number" id="base" value="150" min="1" max="350" inputmode="numeric" oninput="calc()">
+    </div>
+    <div class="field">
+      <label>Elevation (ft)</label>
+      <input type="number" id="elev" value="0" min="0" max="100" inputmode="numeric" oninput="calc()">
+    </div>
+    <div class="field">
+      <label>Type</label>
       <div class="bubble-group">
         <label class="bubble selected"><input type="radio" name="elev-dir" value="flat" checked onchange="calc()">Flat</label>
         <label class="bubble"><input type="radio" name="elev-dir" value="down" onchange="calc()">Below</label>
@@ -66,39 +139,37 @@
     <div class="card-title">Wind</div>
     <div class="wind-section">
       <div class="compass-wrap">
-        <canvas id="compass" width="130" height="130" style="cursor:pointer;"></canvas>
-        <div class="compass-label">arrow = wind blowing toward<br>▲ = pin direction</div>
+        <canvas id="compass" width="110" height="110" style="cursor:pointer;touch-action:none;"></canvas>
+        <div class="compass-label">drag arrow<br>▲ = pin</div>
       </div>
-      <div class="wind-inputs">
+      <div class="wind-info">
         <div>
-          <div class="wind-dir-display" id="wind-dir-display">N</div>
-          <div class="wind-dir-sub" id="wind-dir-sub">set speed to activate</div>
+          <div class="wind-dir-name" id="wind-dir-name">N</div>
+          <div class="wind-dir-sub" id="wind-dir-sub">set speed below</div>
         </div>
-        <div class="field" style="margin-bottom:0;">
-          <label style="width:80px;">Speed (mph)</label>
-          <input type="number" id="wind-speed" value="0" min="0" max="30" oninput="calc()" style="width:80px;flex:none;">
+        <div class="wind-speed-row">
+          <label>Speed (mph)</label>
+          <input type="number" id="wind-speed" value="0" min="0" max="30" inputmode="numeric" oninput="calc()">
         </div>
-        <div class="wind-components">
-          <div class="comp-box"><div class="comp-label">Head/tail</div><div class="comp-value" id="comp-ht">0 mph</div></div>
-          <div class="comp-box"><div class="comp-label">Cross</div><div class="comp-value" id="comp-cross">0 mph</div></div>
+        <div class="comp-grid">
+          <div class="comp-box"><div class="comp-label">Head/tail</div><div class="comp-val" id="comp-ht">0 mph</div></div>
+          <div class="comp-box"><div class="comp-label">Cross</div><div class="comp-val" id="comp-cross">0 mph</div></div>
         </div>
       </div>
     </div>
-    <div class="field" style="margin-top:14px;">
+    <div class="field">
       <label>Shot shape</label>
       <select id="shot-shape" onchange="calc()">
         <option value="full">100% flat</option>
-        <option value="loft-l">Fully lofted (left analog)</option>
-        <option value="loft-lr">Fully lofted (L + R analog)</option>
+        <option value="loft-l">Lofted (L analog)</option>
+        <option value="loft-lr">Lofted (L+R analog)</option>
       </select>
     </div>
   </div>
 
   <div class="card">
     <div class="card-title">Slope</div>
-
-    <!-- Up/Down -->
-    <div class="slope-sub">Up/down affects wind calc &amp; yardage</div>
+    <div class="slope-sub">Up/down — affects wind &amp; yardage</div>
     <div class="field">
       <label>Up / Down</label>
       <div class="bubble-group">
@@ -107,51 +178,46 @@
         <label class="bubble"><input type="radio" name="ud-type" value="downhill" onchange="calc()">Downhill</label>
       </div>
     </div>
-    <div class="field" id="ud-grade-row">
+    <div class="field">
       <label>Grade</label>
       <div class="bubble-group">
-        <label class="bubble bubble-green selected"><input type="radio" name="ud-grade" value="green" checked onchange="calc()">🟢 Green</label>
-        <label class="bubble bubble-yellow"><input type="radio" name="ud-grade" value="yellow" onchange="calc()">🟡 Yellow</label>
-        <label class="bubble bubble-red"><input type="radio" name="ud-grade" value="red" onchange="calc()">🔴 Red</label>
+        <label class="bubble bubble-green selected"><input type="radio" name="ud-grade" value="green" checked onchange="calc()">🟢</label>
+        <label class="bubble bubble-yellow"><input type="radio" name="ud-grade" value="yellow" onchange="calc()">🟡</label>
+        <label class="bubble bubble-red"><input type="radio" name="ud-grade" value="red" onchange="calc()">🔴</label>
       </div>
     </div>
-
-    <div class="divider"></div>
-
-    <!-- Side -->
-    <div class="slope-sub">Side slope affects left/right dispersion</div>
+    <div class="slope-divider"></div>
+    <div class="slope-sub">Side slope — affects aim left/right</div>
     <div class="field">
-      <label>Side slope</label>
+      <label>Side</label>
       <div class="bubble-group">
         <label class="bubble selected"><input type="radio" name="side-type" value="none" checked onchange="calc()">None</label>
-        <label class="bubble"><input type="radio" name="side-type" value="left" onchange="calc()">Drifts left</label>
-        <label class="bubble"><input type="radio" name="side-type" value="right" onchange="calc()">Drifts right</label>
+        <label class="bubble"><input type="radio" name="side-type" value="left" onchange="calc()">Drifts L</label>
+        <label class="bubble"><input type="radio" name="side-type" value="right" onchange="calc()">Drifts R</label>
       </div>
     </div>
-    <div class="field" id="side-grade-row">
+    <div class="field">
       <label>Grade</label>
       <div class="bubble-group">
-        <label class="bubble bubble-green selected"><input type="radio" name="side-grade" value="green" checked onchange="calc()">🟢 Green</label>
-        <label class="bubble bubble-yellow"><input type="radio" name="side-grade" value="yellow" onchange="calc()">🟡 Yellow</label>
-        <label class="bubble bubble-red"><input type="radio" name="side-grade" value="red" onchange="calc()">🔴 Red</label>
+        <label class="bubble bubble-green selected"><input type="radio" name="side-grade" value="green" checked onchange="calc()">🟢</label>
+        <label class="bubble bubble-yellow"><input type="radio" name="side-grade" value="yellow" onchange="calc()">🟡</label>
+        <label class="bubble bubble-red"><input type="radio" name="side-grade" value="red" onchange="calc()">🔴</label>
       </div>
     </div>
-
-    <div class="divider"></div>
-
+    <div class="slope-divider"></div>
     <div class="field">
-      <label>Lie % (power)</label>
+      <label>Lie %</label>
       <div class="lie-wrap">
         <input type="range" id="lie" min="50" max="100" value="100" step="1" oninput="calc()">
-        <div class="lie-range"><span>50%</span><span>75%</span><span>100%</span></div>
+        <div class="lie-labels"><span>50%</span><span>75%</span><span id="lie-out">100%</span></div>
       </div>
-      <span class="val" id="lie-out">100%</span>
     </div>
   </div>
 
   <div class="card">
     <div class="card-title">Club</div>
-    <div class="field"><label>Club type</label>
+    <div class="field">
+      <label>Club type</label>
       <select id="club-type" onchange="calc()">
         <option value="iron">Iron / approach</option>
         <option value="wedge-short">Short wedge (50–59°)</option>
@@ -159,7 +225,8 @@
         <option value="driver">Driver</option>
       </select>
     </div>
-    <div class="field"><label>Landing surface</label>
+    <div class="field">
+      <label>Landing</label>
       <select id="land-surface" onchange="calc()">
         <option value="fairway">Fairway</option>
         <option value="green">Green</option>
@@ -167,38 +234,24 @@
     </div>
   </div>
 
+  <!-- OUTPUT -->
   <div class="output-card">
-    <div class="card-title">Your shot</div>
-    <div class="out3">
-      <div class="output-box">
-        <div class="output-label">Carry to play</div>
-        <div class="output-value" id="out-play">150</div>
-        <div class="output-sub">yards</div>
+    <div class="card-title">Your Shot</div>
+    <div class="big-result">
+      <div class="big-box">
+        <div class="big-label">PLAY</div>
+        <div class="big-value" id="out-play">150</div>
+        <div class="big-unit">yards</div>
       </div>
-      <div class="output-box">
-        <div class="output-label">Wind aim</div>
-        <div class="output-value" id="out-wind-aim" style="font-size:20px;">—</div>
-        <div class="output-sub" id="out-wind-aim-sub">no crosswind</div>
-      </div>
-      <div class="output-box">
-        <div class="output-label">Slope aim</div>
-        <div class="output-value" id="out-slope-aim" style="font-size:20px;">—</div>
-        <div class="output-sub" id="out-slope-aim-sub">no side slope</div>
+      <div class="big-box">
+        <div class="big-label">AIM</div>
+        <div class="big-value-aim" id="out-aim-val">—</div>
+        <div class="aim-dir" id="out-aim-dir">straight at pin</div>
       </div>
     </div>
-    <div class="aim-box">
-      <div class="aim-row">
-        <span class="aim-label-sm">Wind aim</span>
-        <span class="aim-val" id="aim-wind-instruction">Aim straight at pin</span>
-      </div>
-      <div class="aim-row">
-        <span class="aim-label-sm">Slope aim</span>
-        <span class="aim-val" id="aim-slope-instruction">No side slope adjustment</span>
-      </div>
-      <div class="aim-row">
-        <span class="aim-label-sm">Slope wind</span>
-        <span class="aim-val" id="aim-slope-wind" style="font-size:13px;color:var(--color-text-secondary);">No adjustment</span>
-      </div>
+    <div class="instruction-box">
+      <div class="instruction-text" id="instruction-text">Aim straight at the pin</div>
+      <div class="instruction-sub" id="instruction-sub"></div>
     </div>
     <div class="breakdown" id="breakdown"></div>
   </div>
@@ -214,7 +267,6 @@ const rolloutIron={full:[1,1,1.9,2,3.3,3.5,5],'loft-l':[-1.5,-0.4,1.5,1.25,1.8,1
 const rolloutWedge={full:{carries:[50,53,57,59],vals:[4.5,6,6,6.5]},'loft-l':{carries:[50,53,57,59],vals:[4,5,5.5,6]}};
 const rolloutFlop={carries:[25,28,31,33],vals:[1.3,1.5,1.75,2.2]};
 const rolloutDriver={fairway:{full:29,'loft-l':26,'loft-lr':19},green:{full:27,'loft-l':24,'loft-lr':18}};
-
 const uphillWindAdj={green:1,yellow:2,red:5};
 const downhillWindAdj={green:0,yellow:0,red:-1.5};
 
@@ -229,16 +281,14 @@ function interp(carries,values,target){
   }
   return 0;
 }
-
-function getRollout(clubType,shotShape,landSurface,base){
-  if(clubType==='iron'){const a=rolloutIron[shotShape]||rolloutIron.full;return Math.round(interp(ironCarries,a,base)*10)/10;}
-  if(clubType==='wedge-short'){const w=rolloutWedge[shotShape]||rolloutWedge.full;return Math.round(interp(w.carries,w.vals,base)*10)/10;}
-  if(clubType==='flop'){return Math.round(interp(rolloutFlop.carries,rolloutFlop.vals,base)*10)/10;}
-  if(clubType==='driver'){const s=shotShape==='loft-lr'?'loft-lr':(shotShape==='loft-l'?'loft-l':'full');return rolloutDriver[landSurface][s];}
+function getRollout(ct,ss,ls,base){
+  if(ct==='iron'){const a=rolloutIron[ss]||rolloutIron.full;return Math.round(interp(ironCarries,a,base)*10)/10;}
+  if(ct==='wedge-short'){const w=rolloutWedge[ss]||rolloutWedge.full;return Math.round(interp(w.carries,w.vals,base)*10)/10;}
+  if(ct==='flop'){return Math.round(interp(rolloutFlop.carries,rolloutFlop.vals,base)*10)/10;}
+  if(ct==='driver'){const s=ss==='loft-lr'?'loft-lr':(ss==='loft-l'?'loft-l':'full');return rolloutDriver[ls][s];}
   return 0;
 }
-
-function getSideDispersion(grade,base){
+function getSideDisp(grade,base){
   if(grade==='red')return Math.round(base/10);
   const tbl={green:{y100:1,y200:2},yellow:{y100:2.5,y200:5.5}};
   const g=tbl[grade];
@@ -246,71 +296,66 @@ function getSideDispersion(grade,base){
   if(base>=200)return g.y200;
   return Math.round((g.y100+(base-100)/100*(g.y200-g.y100))*10)/10;
 }
-
-// Bubble selection
-document.querySelectorAll('.bubble').forEach(b=>{
-  b.addEventListener('click',()=>{
-    const name=b.querySelector('input').name;
-    document.querySelectorAll(`.bubble input[name="${name}"]`).forEach(i=>{
-      i.closest('.bubble').classList.remove('selected');
-    });
-    b.classList.add('selected');
-    calc();
-  });
-});
-
-let windAngle=0;
-
-function drawCompass(angle){
-  const canvas=document.getElementById('compass');
-  const ctx=canvas.getContext('2d');
-  const cx=65,cy=65,r=55;
-  ctx.clearRect(0,0,130,130);
-  const isDark=window.matchMedia('(prefers-color-scheme: dark)').matches;
-  ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);
-  ctx.fillStyle=isDark?'#1a1a1a':'#f8f8f6';ctx.fill();
-  ctx.strokeStyle=isDark?'rgba(255,255,255,0.15)':'rgba(0,0,0,0.12)';ctx.lineWidth=1;ctx.stroke();
-
-  // PIN triangle
-  ctx.beginPath();ctx.moveTo(cx,cy-r+5);ctx.lineTo(cx-5,cy-r+14);ctx.lineTo(cx+5,cy-r+14);ctx.closePath();
-  ctx.fillStyle='#1D9E75';ctx.fill();
-
-  [['E',90],['S',180],['W',270]].forEach(([label,deg])=>{
-    const rad=deg*Math.PI/180;
-    ctx.fillStyle=isDark?'#aaa':'#888';ctx.font='500 11px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.fillText(label,cx+Math.sin(rad)*(r-12),cy-Math.cos(rad)*(r-12));
-  });
-
+function getWindComps(angle){
   const rad=angle*Math.PI/180;
-  const nx=cx+Math.sin(rad)*(r-22),ny=cy-Math.cos(rad)*(r-22);
-  ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(nx,ny);
-  ctx.strokeStyle='#378ADD';ctx.lineWidth=2.5;ctx.lineCap='round';ctx.stroke();
-  const hl=9,a1=rad-0.4,a2=rad+0.4;
-  ctx.beginPath();
-  ctx.moveTo(nx,ny);ctx.lineTo(nx-hl*Math.sin(a1),ny+hl*Math.cos(a1));
-  ctx.moveTo(nx,ny);ctx.lineTo(nx-hl*Math.sin(a2),ny+hl*Math.cos(a2));
-  ctx.strokeStyle='#378ADD';ctx.lineWidth=2;ctx.stroke();
-  ctx.beginPath();ctx.arc(cx,cy,4,0,Math.PI*2);
-  ctx.fillStyle=isDark?'#fff':'#1a1a1a';ctx.fill();
+  return{isTail:Math.cos(rad)>=0,htMag:Math.abs(Math.cos(rad)),crossMag:Math.abs(Math.sin(rad)),driftRight:Math.sin(rad)>0};
 }
-
-function angleToLabel(angle){
-  return ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'][Math.round(angle/22.5)%16];
-}
-function getWindComponents(angle){
-  const rad=angle*Math.PI/180;
-  return {isTail:Math.cos(rad)>=0,htMag:Math.abs(Math.cos(rad)),crossMag:Math.abs(Math.sin(rad)),driftRight:Math.sin(rad)>0};
+function angleToLabel(a){
+  return['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'][Math.round(a/22.5)%16];
 }
 function getWindDesc(angle){
-  const {isTail,htMag,crossMag,driftRight}=getWindComponents(angle);
+  const{isTail,htMag,crossMag,driftRight}=getWindComps(angle);
   const p=[];
   if(htMag>0.15)p.push(isTail?'tailwind':'headwind');
   if(crossMag>0.15)p.push(driftRight?'drifts right':'drifts left');
   return p.length?p.join(' + '):'pure crosswind';
 }
 
+document.querySelectorAll('.bubble').forEach(b=>{
+  b.addEventListener('click',()=>{
+    const name=b.querySelector('input').name;
+    document.querySelectorAll(`.bubble input[name="${name}"]`).forEach(i=>i.closest('.bubble').classList.remove('selected'));
+    b.classList.add('selected');
+    calc();
+  });
+});
+
+let windAngle=0,dragging=false;
 const canvas=document.getElementById('compass');
-let dragging=false;
+const ctx=canvas.getContext('2d');
+
+function drawCompass(angle){
+  const cx=55,cy=55,r=48;
+  ctx.clearRect(0,0,110,110);
+  ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);
+  ctx.fillStyle='#22263a';ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,0.08)';ctx.lineWidth=1;ctx.stroke();
+  for(let i=0;i<8;i++){
+    const a=i*45*Math.PI/180;
+    ctx.beginPath();
+    ctx.moveTo(cx+Math.sin(a)*(r-8),cy-Math.cos(a)*(r-8));
+    ctx.lineTo(cx+Math.sin(a)*(r-2),cy-Math.cos(a)*(r-2));
+    ctx.strokeStyle='rgba(255,255,255,0.15)';ctx.lineWidth=1;ctx.stroke();
+  }
+  ctx.beginPath();ctx.moveTo(cx,cy-r+3);ctx.lineTo(cx-4,cy-r+12);ctx.lineTo(cx+4,cy-r+12);ctx.closePath();
+  ctx.fillStyle='#22c55e';ctx.fill();
+  [['E',90],['S',180],['W',270]].forEach(([l,d])=>{
+    const rad=d*Math.PI/180;
+    ctx.fillStyle='#5a5f78';ctx.font='bold 10px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(l,cx+Math.sin(rad)*(r-14),cy-Math.cos(rad)*(r-14));
+  });
+  const rad=angle*Math.PI/180;
+  const nx=cx+Math.sin(rad)*(r-18),ny=cy-Math.cos(rad)*(r-18);
+  ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(nx,ny);
+  ctx.strokeStyle='#4a9eff';ctx.lineWidth=2.5;ctx.lineCap='round';ctx.stroke();
+  const hl=8,a1=rad-0.4,a2=rad+0.4;
+  ctx.beginPath();
+  ctx.moveTo(nx,ny);ctx.lineTo(nx-hl*Math.sin(a1),ny+hl*Math.cos(a1));
+  ctx.moveTo(nx,ny);ctx.lineTo(nx-hl*Math.sin(a2),ny+hl*Math.cos(a2));
+  ctx.strokeStyle='#4a9eff';ctx.lineWidth=2;ctx.stroke();
+  ctx.beginPath();ctx.arc(cx,cy,3.5,0,Math.PI*2);ctx.fillStyle='#f0f2ff';ctx.fill();
+}
+
 function getAngle(e){
   const rect=canvas.getBoundingClientRect();
   const cx=rect.left+rect.width/2,cy=rect.top+rect.height/2;
@@ -344,101 +389,104 @@ function calc(){
 
   document.getElementById('lie-out').textContent=lie+'%';
 
-  const {isTail,htMag,crossMag,driftRight}=getWindComponents(windAngle);
-  const rawHeadSpeed=windSpeed*htMag;
+  const{isTail,htMag,crossMag,driftRight}=getWindComps(windAngle);
+  const rawHead=windSpeed*htMag;
   const crossSpeed=windSpeed*crossMag;
-
-  // Up/down wind adjustment — headwind only
-  let slopeWindMph=0, slopeWindNote='No adjustment';
-  if(windSpeed>0&&!isTail){
-    if(udType==='uphill'){
-      slopeWindMph=uphillWindAdj[udGrade]||0;
-      if(slopeWindMph>0)slopeWindNote='Uphill '+udGrade+' adds +'+slopeWindMph+' mph effective headwind';
-    } else if(udType==='downhill'&&udGrade==='red'){
-      slopeWindMph=downhillWindAdj.red;
-      slopeWindNote='Downhill red reduces headwind by ~'+Math.abs(slopeWindMph)+' mph';
-    }
-  }
-  const effectiveHeadSpeed=Math.max(0,rawHeadSpeed+slopeWindMph);
-
   const dirLabel=angleToLabel(windAngle);
-  document.getElementById('wind-dir-display').textContent=dirLabel;
-  document.getElementById('wind-dir-sub').textContent=windSpeed>0?'wind blowing '+dirLabel+' \u2014 '+getWindDesc(windAngle):'set speed to activate';
-  document.getElementById('comp-ht').textContent=windSpeed>0?(Math.round(rawHeadSpeed*10)/10)+' mph '+(isTail?'tail':'head'):'0 mph';
-  document.getElementById('comp-cross').textContent=windSpeed>0?(Math.round(crossSpeed*10)/10)+' mph '+(driftRight?'drifts R':'drifts L'):'0 mph';
+
+  let slopeWindMph=0,slopeWindNote='';
+  if(windSpeed>0&&!isTail){
+    if(udType==='uphill'){slopeWindMph=uphillWindAdj[udGrade]||0;}
+    else if(udType==='downhill'&&udGrade==='red'){slopeWindMph=downhillWindAdj.red;}
+  }
+  const effHead=Math.max(0,rawHead+slopeWindMph);
+
+  document.getElementById('wind-dir-name').textContent=dirLabel;
+  document.getElementById('wind-dir-sub').textContent=windSpeed>0?'blowing '+dirLabel+' — '+getWindDesc(windAngle):'set speed below';
+  document.getElementById('comp-ht').textContent=windSpeed>0?(Math.round(rawHead*10)/10)+' mph '+(isTail?'tail':'head'):'0 mph';
+  document.getElementById('comp-cross').textContent=windSpeed>0?(Math.round(crossSpeed*10)/10)+' mph '+(driftRight?'R':'L'):'0 mph';
 
   let play=base;
-  const parts=[];
+  const bparts=[];
 
   const elevYds=Math.round(elevFt/3);
-  if(elevDir==='down'&&elevYds){play-=elevYds;parts.push('&minus;'+elevYds+' elev (below)');}
-  else if(elevDir==='up'&&elevYds){play+=elevYds;parts.push('+'+elevYds+' elev (above)');}
+  if(elevDir==='down'&&elevYds){play-=elevYds;bparts.push({l:'Elevation',v:'−'+elevYds+' yds'});}
+  else if(elevDir==='up'&&elevYds){play+=elevYds;bparts.push({l:'Elevation',v:'+'+elevYds+' yds'});}
 
   if(windSpeed>0){
-    if(!isTail&&effectiveHeadSpeed>0.1){
-      const windYdAdj=clubType==='driver'?Math.round(effectiveHeadSpeed):Math.round(interp(ironCarries,headMultArr,base)*effectiveHeadSpeed);
-      play+=windYdAdj;
-      parts.push('+'+windYdAdj+' yds headwind'+(slopeWindMph!==0?' (slope adj.)':''));
-    } else if(isTail&&rawHeadSpeed>0.1){
-      const windYdAdj=clubType==='driver'?Math.round(rawHeadSpeed):Math.round(interp(ironCarries,tailMultArr,base)*rawHeadSpeed);
-      play-=windYdAdj;
-      parts.push('&minus;'+windYdAdj+' yds tailwind');
+    if(!isTail&&effHead>0.1){
+      const adj=clubType==='driver'?Math.round(effHead):Math.round(interp(ironCarries,headMultArr,base)*effHead);
+      play+=adj;
+      const note=slopeWindMph?` (incl. slope +${slopeWindMph}mph)`:'';
+      bparts.push({l:'Headwind',v:'+'+adj+' yds'+note});
+    } else if(isTail&&rawHead>0.1){
+      const adj=clubType==='driver'?Math.round(rawHead):Math.round(interp(ironCarries,tailMultArr,base)*rawHead);
+      play-=adj;bparts.push({l:'Tailwind',v:'−'+adj+' yds'});
     }
   }
 
+  // Wind cross grids
   let crossGrids=0;
-  if(windSpeed>0&&crossSpeed>0.1){
-    crossGrids=clubType==='driver'?Math.round(crossSpeed*1.75):Math.round(interp(ironCarries,crossMultArr,base)*crossSpeed);
-  }
+  if(windSpeed>0&&crossSpeed>0.1)crossGrids=clubType==='driver'?Math.round(crossSpeed*1.75):Math.round(interp(ironCarries,crossMultArr,base)*crossSpeed);
 
   const liePenalty=base-Math.round(base*(lie/100));
-  if(liePenalty>0){play+=liePenalty;parts.push('+'+liePenalty+' lie ('+lie+'%)');}
+  if(liePenalty>0){play+=liePenalty;bparts.push({l:'Lie penalty',v:'+'+liePenalty+' yds'});}
 
   const rollout=getRollout(clubType,shotShape,landSurface,base);
-  if(rollout!==0){play-=rollout;parts.push('&minus;'+rollout+' rollout ('+clubType+'/'+landSurface+')');}
-
+  if(rollout!==0){play-=rollout;bparts.push({l:'Rollout',v:'−'+rollout+' yds'});}
   play=Math.round(play);
 
-  // Side dispersion
-  let dispYds=0,dispAimDir='';
-  if(sideType!=='none'){
-    dispYds=getSideDispersion(sideGrade,base);
-    // ball drifts left → aim right to compensate, ball drifts right → aim left
-    dispAimDir=sideType==='left'?'right':'left';
-  }
+  // Side dispersion in yards
+  let dispYds=0;
+  if(sideType!=='none')dispYds=getSideDisp(sideGrade,base);
 
-  // Wind aim
-  const windAimDir=driftRight?'left':'right';
-  let windAimDisplay='—',windAimSub='no crosswind',windAimInstruction='Aim straight at pin';
-  if(crossGrids>0){
-    windAimDisplay=crossGrids+' grids '+windAimDir;
-    windAimSub=crossGrids+' grids \u2248 '+Math.round(crossGrids*1.09)+' yds';
-    windAimInstruction='Aim '+crossGrids+' grids to the '+windAimDir+' of pin';
-  }
+  // COMBINED AIM
+  // Wind cross: grids → convert to yards (1.09 yds/grid)
+  const windCrossYds=Math.round(crossGrids*1.09);
+  const windCrossDir=driftRight?'left':'right'; // aim opposite to drift
 
-  // Slope aim
-  let slopeAimDisplay='—',slopeAimSub='no side slope',slopeAimInstruction='No side slope adjustment';
-  if(sideType!=='none'&&dispYds>0){
-    slopeAimDisplay=dispYds+' yds '+dispAimDir;
-    slopeAimSub='ball drifts '+sideType+' ('+sideGrade+')';
-    slopeAimInstruction='Aim '+dispYds+' yds to the '+dispAimDir+' (ball drifts '+sideType+')';
-  }
+  // Slope: dispYds, aim opposite to drift direction
+  const slopeCrossDir=sideType==='left'?'right':(sideType==='right'?'left':'');
 
+  // Combine: both into a signed number (positive = left, negative = right)
+  let aimLeft=0;
+  if(crossGrids>0){aimLeft+=(windCrossDir==='left'?windCrossYds:-windCrossYds);}
+  if(dispYds>0){aimLeft+=(slopeCrossDir==='left'?dispYds:-dispYds);}
+
+  const totalAimYds=Math.abs(Math.round(aimLeft));
+  const totalAimDir=aimLeft>0?'left':(aimLeft<0?'right':'');
+  // Convert back to grids for display
+  const totalAimGrids=Math.round(totalAimYds/1.09);
+
+  // Build outputs
   document.getElementById('out-play').textContent=play;
-  document.getElementById('out-wind-aim').textContent=windAimDisplay;
-  document.getElementById('out-wind-aim-sub').textContent=windAimSub;
-  document.getElementById('out-slope-aim').textContent=slopeAimDisplay;
-  document.getElementById('out-slope-aim-sub').textContent=slopeAimSub;
-  document.getElementById('aim-wind-instruction').textContent=windAimInstruction;
-  document.getElementById('aim-slope-instruction').textContent=slopeAimInstruction;
-  document.getElementById('aim-slope-wind').textContent=slopeWindNote;
 
-  const bdParts=['<strong>'+base+'</strong> yds base'];
-  if(parts.length)bdParts.push(parts.join(' &nbsp;&middot; '));
-  bdParts.push('= <strong>'+play+'</strong> yds carry');
-  document.getElementById('breakdown').innerHTML=bdParts.join(' &nbsp;&middot; ');
+  if(totalAimGrids===0){
+    document.getElementById('out-aim-val').textContent='—';
+    document.getElementById('out-aim-dir').textContent='straight at pin';
+    document.getElementById('instruction-text').textContent='Play '+play+' yds · Aim straight at the pin';
+    document.getElementById('instruction-sub').textContent='';
+  } else {
+    document.getElementById('out-aim-val').textContent=totalAimGrids;
+    document.getElementById('out-aim-dir').textContent='grids '+totalAimDir;
+    document.getElementById('instruction-text').textContent='Play '+play+' yds · Aim '+totalAimGrids+' grids '+totalAimDir;
+    const subs=[];
+    if(crossGrids>0)subs.push('Wind: '+crossGrids+' grids '+windCrossDir);
+    if(dispYds>0)subs.push('Slope: '+dispYds+' yds '+slopeCrossDir);
+    document.getElementById('instruction-sub').textContent=subs.join(' · ');
+  }
+
+  // Breakdown
+  if(bparts.length){
+    const rows=bparts.map(p=>`<div class="breakdown-row"><span class="breakdown-label">${p.l}</span><span class="breakdown-val">${p.v}</span></div>`).join('');
+    document.getElementById('breakdown').innerHTML=`<div class="breakdown-row"><span class="breakdown-label">Base</span><span class="breakdown-val"><strong>${base}</strong> yds</span></div>${rows}<div class="breakdown-row" style="border-top:1px solid var(--border);margin-top:4px;padding-top:4px;"><span class="breakdown-label">Carry to play</span><span class="breakdown-val"><strong>${play}</strong> yds</span></div>`;
+  } else {
+    document.getElementById('breakdown').innerHTML=`<div class="breakdown-row"><span class="breakdown-label">Base</span><span class="breakdown-val"><strong>${base}</strong> yds — no adjustments</span></div>`;
+  }
 }
 
 drawCompass(0);
 calc();
 </script>
+</body>
+</html>
