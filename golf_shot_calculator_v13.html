@@ -1,0 +1,444 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+.wrap { padding: 1rem 0; font-family: var(--font-sans); }
+.card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.25rem; margin-bottom: 12px; }
+.card-title { font-size: 12px; font-weight: 500; color: var(--color-text-secondary); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 14px; }
+.field { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.field:last-child { margin-bottom: 0; }
+.field label { font-size: 14px; color: var(--color-text-secondary); width: 150px; flex-shrink: 0; }
+.field input[type=number] { flex: 1; }
+.field select { flex: 1; }
+.val { font-size: 14px; font-weight: 500; color: var(--color-text-primary); min-width: 52px; text-align: right; }
+.bubble-group { display: flex; gap: 8px; flex-wrap: wrap; }
+.bubble { display: flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; border: 0.5px solid var(--color-border-secondary); background: var(--color-background-secondary); font-size: 13px; color: var(--color-text-secondary); cursor: pointer; user-select: none; transition: background 0.15s, color 0.15s; }
+.bubble input[type=radio] { display: none; }
+.bubble.selected { background: var(--color-background-info); color: var(--color-text-info); border-color: var(--color-border-info); font-weight: 500; }
+.bubble-green.selected { background: #EAF3DE; color: #27500A; border-color: #27500A44; }
+.bubble-yellow.selected { background: #FAEEDA; color: #633806; border-color: #63380644; }
+.bubble-red.selected { background: #FCEBEB; color: #791F1F; border-color: #791F1F44; }
+.slope-sub { font-size: 11px; color: var(--color-text-tertiary); margin: -6px 0 10px 0; }
+.divider { border: none; border-top: 0.5px solid var(--color-border-tertiary); margin: 14px 0; }
+.wind-section { display: flex; align-items: center; gap: 24px; }
+.compass-wrap { display: flex; flex-direction: column; align-items: center; gap: 8px; flex-shrink: 0; }
+.compass-label { font-size: 11px; color: var(--color-text-tertiary); text-align: center; }
+.wind-inputs { flex: 1; display: flex; flex-direction: column; gap: 12px; }
+.wind-dir-display { font-size: 22px; font-weight: 500; color: var(--color-text-primary); }
+.wind-dir-sub { font-size: 12px; color: var(--color-text-tertiary); margin-top: 2px; }
+.wind-components { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px; }
+.comp-box { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 8px 10px; }
+.comp-label { font-size: 11px; color: var(--color-text-tertiary); }
+.comp-value { font-size: 14px; font-weight: 500; color: var(--color-text-primary); }
+.output-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.25rem; margin-bottom: 12px; }
+.out3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.output-box { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 14px; text-align: center; }
+.output-label { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 5px; }
+.output-value { font-size: 28px; font-weight: 500; color: var(--color-text-primary); line-height: 1; }
+.output-sub { font-size: 11px; color: var(--color-text-tertiary); margin-top: 5px; }
+.aim-box { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 14px 16px; margin-bottom: 10px; }
+.aim-row { display: flex; justify-content: space-between; align-items: baseline; padding: 4px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.aim-row:last-child { border-bottom: none; }
+.aim-label-sm { font-size: 11px; color: var(--color-text-tertiary); min-width: 80px; }
+.aim-val { font-size: 14px; font-weight: 500; color: var(--color-text-primary); text-align: right; }
+.breakdown { font-size: 12px; color: var(--color-text-secondary); line-height: 2; border-top: 0.5px solid var(--color-border-tertiary); padding-top: 10px; }
+.breakdown strong { color: var(--color-text-primary); font-weight: 500; }
+.lie-wrap { display: flex; flex-direction: column; flex: 1; gap: 2px; }
+.lie-range { display: flex; justify-content: space-between; font-size: 11px; color: var(--color-text-tertiary); }
+</style>
+
+<div class="wrap">
+
+  <div class="card">
+    <div class="card-title">Distance</div>
+    <div class="field"><label>Yards to pin</label><input type="number" id="base" value="150" min="1" max="350" oninput="calc()"></div>
+    <div class="field"><label>Elevation (ft)</label><input type="number" id="elev" value="0" min="0" max="100" oninput="calc()"></div>
+    <div class="field">
+      <label>Elevation type</label>
+      <div class="bubble-group">
+        <label class="bubble selected"><input type="radio" name="elev-dir" value="flat" checked onchange="calc()">Flat</label>
+        <label class="bubble"><input type="radio" name="elev-dir" value="down" onchange="calc()">Below</label>
+        <label class="bubble"><input type="radio" name="elev-dir" value="up" onchange="calc()">Above</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Wind</div>
+    <div class="wind-section">
+      <div class="compass-wrap">
+        <canvas id="compass" width="130" height="130" style="cursor:pointer;"></canvas>
+        <div class="compass-label">arrow = wind blowing toward<br>▲ = pin direction</div>
+      </div>
+      <div class="wind-inputs">
+        <div>
+          <div class="wind-dir-display" id="wind-dir-display">N</div>
+          <div class="wind-dir-sub" id="wind-dir-sub">set speed to activate</div>
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label style="width:80px;">Speed (mph)</label>
+          <input type="number" id="wind-speed" value="0" min="0" max="30" oninput="calc()" style="width:80px;flex:none;">
+        </div>
+        <div class="wind-components">
+          <div class="comp-box"><div class="comp-label">Head/tail</div><div class="comp-value" id="comp-ht">0 mph</div></div>
+          <div class="comp-box"><div class="comp-label">Cross</div><div class="comp-value" id="comp-cross">0 mph</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="field" style="margin-top:14px;">
+      <label>Shot shape</label>
+      <select id="shot-shape" onchange="calc()">
+        <option value="full">100% flat</option>
+        <option value="loft-l">Fully lofted (left analog)</option>
+        <option value="loft-lr">Fully lofted (L + R analog)</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Slope</div>
+
+    <!-- Up/Down -->
+    <div class="slope-sub">Up/down affects wind calc &amp; yardage</div>
+    <div class="field">
+      <label>Up / Down</label>
+      <div class="bubble-group">
+        <label class="bubble selected"><input type="radio" name="ud-type" value="none" checked onchange="calc()">None</label>
+        <label class="bubble"><input type="radio" name="ud-type" value="uphill" onchange="calc()">Uphill</label>
+        <label class="bubble"><input type="radio" name="ud-type" value="downhill" onchange="calc()">Downhill</label>
+      </div>
+    </div>
+    <div class="field" id="ud-grade-row">
+      <label>Grade</label>
+      <div class="bubble-group">
+        <label class="bubble bubble-green selected"><input type="radio" name="ud-grade" value="green" checked onchange="calc()">🟢 Green</label>
+        <label class="bubble bubble-yellow"><input type="radio" name="ud-grade" value="yellow" onchange="calc()">🟡 Yellow</label>
+        <label class="bubble bubble-red"><input type="radio" name="ud-grade" value="red" onchange="calc()">🔴 Red</label>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Side -->
+    <div class="slope-sub">Side slope affects left/right dispersion</div>
+    <div class="field">
+      <label>Side slope</label>
+      <div class="bubble-group">
+        <label class="bubble selected"><input type="radio" name="side-type" value="none" checked onchange="calc()">None</label>
+        <label class="bubble"><input type="radio" name="side-type" value="left" onchange="calc()">Drifts left</label>
+        <label class="bubble"><input type="radio" name="side-type" value="right" onchange="calc()">Drifts right</label>
+      </div>
+    </div>
+    <div class="field" id="side-grade-row">
+      <label>Grade</label>
+      <div class="bubble-group">
+        <label class="bubble bubble-green selected"><input type="radio" name="side-grade" value="green" checked onchange="calc()">🟢 Green</label>
+        <label class="bubble bubble-yellow"><input type="radio" name="side-grade" value="yellow" onchange="calc()">🟡 Yellow</label>
+        <label class="bubble bubble-red"><input type="radio" name="side-grade" value="red" onchange="calc()">🔴 Red</label>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="field">
+      <label>Lie % (power)</label>
+      <div class="lie-wrap">
+        <input type="range" id="lie" min="50" max="100" value="100" step="1" oninput="calc()">
+        <div class="lie-range"><span>50%</span><span>75%</span><span>100%</span></div>
+      </div>
+      <span class="val" id="lie-out">100%</span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Club</div>
+    <div class="field"><label>Club type</label>
+      <select id="club-type" onchange="calc()">
+        <option value="iron">Iron / approach</option>
+        <option value="wedge-short">Short wedge (50–59°)</option>
+        <option value="flop">Flop shot</option>
+        <option value="driver">Driver</option>
+      </select>
+    </div>
+    <div class="field"><label>Landing surface</label>
+      <select id="land-surface" onchange="calc()">
+        <option value="fairway">Fairway</option>
+        <option value="green">Green</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="output-card">
+    <div class="card-title">Your shot</div>
+    <div class="out3">
+      <div class="output-box">
+        <div class="output-label">Carry to play</div>
+        <div class="output-value" id="out-play">150</div>
+        <div class="output-sub">yards</div>
+      </div>
+      <div class="output-box">
+        <div class="output-label">Wind aim</div>
+        <div class="output-value" id="out-wind-aim" style="font-size:20px;">—</div>
+        <div class="output-sub" id="out-wind-aim-sub">no crosswind</div>
+      </div>
+      <div class="output-box">
+        <div class="output-label">Slope aim</div>
+        <div class="output-value" id="out-slope-aim" style="font-size:20px;">—</div>
+        <div class="output-sub" id="out-slope-aim-sub">no side slope</div>
+      </div>
+    </div>
+    <div class="aim-box">
+      <div class="aim-row">
+        <span class="aim-label-sm">Wind aim</span>
+        <span class="aim-val" id="aim-wind-instruction">Aim straight at pin</span>
+      </div>
+      <div class="aim-row">
+        <span class="aim-label-sm">Slope aim</span>
+        <span class="aim-val" id="aim-slope-instruction">No side slope adjustment</span>
+      </div>
+      <div class="aim-row">
+        <span class="aim-label-sm">Slope wind</span>
+        <span class="aim-val" id="aim-slope-wind" style="font-size:13px;color:var(--color-text-secondary);">No adjustment</span>
+      </div>
+    </div>
+    <div class="breakdown" id="breakdown"></div>
+  </div>
+
+</div>
+
+<script>
+const ironCarries=[97,114,129,144,161,172,184];
+const crossMultArr=[0.66,0.66,0.75,1.25,1.25,1.25,1.1];
+const tailMultArr=[0.66,1,1,1.25,1.3,1.2,1.5];
+const headMultArr=[1,1,1,1,1,1,1.5];
+const rolloutIron={full:[1,1,1.9,2,3.3,3.5,5],'loft-l':[-1.5,-0.4,1.5,1.25,1.8,1.5,2],'loft-lr':[-1.75,1.5,0,2,2,2,2]};
+const rolloutWedge={full:{carries:[50,53,57,59],vals:[4.5,6,6,6.5]},'loft-l':{carries:[50,53,57,59],vals:[4,5,5.5,6]}};
+const rolloutFlop={carries:[25,28,31,33],vals:[1.3,1.5,1.75,2.2]};
+const rolloutDriver={fairway:{full:29,'loft-l':26,'loft-lr':19},green:{full:27,'loft-l':24,'loft-lr':18}};
+
+const uphillWindAdj={green:1,yellow:2,red:5};
+const downhillWindAdj={green:0,yellow:0,red:-1.5};
+
+function interp(carries,values,target){
+  if(target<=carries[0])return values[0]??0;
+  if(target>=carries[carries.length-1])return values[carries.length-1]??0;
+  for(let i=0;i<carries.length-1;i++){
+    if(target>=carries[i]&&target<=carries[i+1]){
+      const t=(target-carries[i])/(carries[i+1]-carries[i]);
+      return (values[i]??0)+t*((values[i+1]??0)-(values[i]??0));
+    }
+  }
+  return 0;
+}
+
+function getRollout(clubType,shotShape,landSurface,base){
+  if(clubType==='iron'){const a=rolloutIron[shotShape]||rolloutIron.full;return Math.round(interp(ironCarries,a,base)*10)/10;}
+  if(clubType==='wedge-short'){const w=rolloutWedge[shotShape]||rolloutWedge.full;return Math.round(interp(w.carries,w.vals,base)*10)/10;}
+  if(clubType==='flop'){return Math.round(interp(rolloutFlop.carries,rolloutFlop.vals,base)*10)/10;}
+  if(clubType==='driver'){const s=shotShape==='loft-lr'?'loft-lr':(shotShape==='loft-l'?'loft-l':'full');return rolloutDriver[landSurface][s];}
+  return 0;
+}
+
+function getSideDispersion(grade,base){
+  if(grade==='red')return Math.round(base/10);
+  const tbl={green:{y100:1,y200:2},yellow:{y100:2.5,y200:5.5}};
+  const g=tbl[grade];
+  if(base<=100)return g.y100;
+  if(base>=200)return g.y200;
+  return Math.round((g.y100+(base-100)/100*(g.y200-g.y100))*10)/10;
+}
+
+// Bubble selection
+document.querySelectorAll('.bubble').forEach(b=>{
+  b.addEventListener('click',()=>{
+    const name=b.querySelector('input').name;
+    document.querySelectorAll(`.bubble input[name="${name}"]`).forEach(i=>{
+      i.closest('.bubble').classList.remove('selected');
+    });
+    b.classList.add('selected');
+    calc();
+  });
+});
+
+let windAngle=0;
+
+function drawCompass(angle){
+  const canvas=document.getElementById('compass');
+  const ctx=canvas.getContext('2d');
+  const cx=65,cy=65,r=55;
+  ctx.clearRect(0,0,130,130);
+  const isDark=window.matchMedia('(prefers-color-scheme: dark)').matches;
+  ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);
+  ctx.fillStyle=isDark?'#1a1a1a':'#f8f8f6';ctx.fill();
+  ctx.strokeStyle=isDark?'rgba(255,255,255,0.15)':'rgba(0,0,0,0.12)';ctx.lineWidth=1;ctx.stroke();
+
+  // PIN triangle
+  ctx.beginPath();ctx.moveTo(cx,cy-r+5);ctx.lineTo(cx-5,cy-r+14);ctx.lineTo(cx+5,cy-r+14);ctx.closePath();
+  ctx.fillStyle='#1D9E75';ctx.fill();
+
+  [['E',90],['S',180],['W',270]].forEach(([label,deg])=>{
+    const rad=deg*Math.PI/180;
+    ctx.fillStyle=isDark?'#aaa':'#888';ctx.font='500 11px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(label,cx+Math.sin(rad)*(r-12),cy-Math.cos(rad)*(r-12));
+  });
+
+  const rad=angle*Math.PI/180;
+  const nx=cx+Math.sin(rad)*(r-22),ny=cy-Math.cos(rad)*(r-22);
+  ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(nx,ny);
+  ctx.strokeStyle='#378ADD';ctx.lineWidth=2.5;ctx.lineCap='round';ctx.stroke();
+  const hl=9,a1=rad-0.4,a2=rad+0.4;
+  ctx.beginPath();
+  ctx.moveTo(nx,ny);ctx.lineTo(nx-hl*Math.sin(a1),ny+hl*Math.cos(a1));
+  ctx.moveTo(nx,ny);ctx.lineTo(nx-hl*Math.sin(a2),ny+hl*Math.cos(a2));
+  ctx.strokeStyle='#378ADD';ctx.lineWidth=2;ctx.stroke();
+  ctx.beginPath();ctx.arc(cx,cy,4,0,Math.PI*2);
+  ctx.fillStyle=isDark?'#fff':'#1a1a1a';ctx.fill();
+}
+
+function angleToLabel(angle){
+  return ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'][Math.round(angle/22.5)%16];
+}
+function getWindComponents(angle){
+  const rad=angle*Math.PI/180;
+  return {isTail:Math.cos(rad)>=0,htMag:Math.abs(Math.cos(rad)),crossMag:Math.abs(Math.sin(rad)),driftRight:Math.sin(rad)>0};
+}
+function getWindDesc(angle){
+  const {isTail,htMag,crossMag,driftRight}=getWindComponents(angle);
+  const p=[];
+  if(htMag>0.15)p.push(isTail?'tailwind':'headwind');
+  if(crossMag>0.15)p.push(driftRight?'drifts right':'drifts left');
+  return p.length?p.join(' + '):'pure crosswind';
+}
+
+const canvas=document.getElementById('compass');
+let dragging=false;
+function getAngle(e){
+  const rect=canvas.getBoundingClientRect();
+  const cx=rect.left+rect.width/2,cy=rect.top+rect.height/2;
+  const clientX=e.touches?e.touches[0].clientX:e.clientX;
+  const clientY=e.touches?e.touches[0].clientY:e.clientY;
+  let a=Math.atan2(clientX-cx,-(clientY-cy))*180/Math.PI;
+  if(a<0)a+=360;
+  return Math.round(a/5)*5;
+}
+canvas.addEventListener('mousedown',e=>{dragging=true;windAngle=getAngle(e);drawCompass(windAngle);calc();});
+canvas.addEventListener('mousemove',e=>{if(!dragging)return;windAngle=getAngle(e);drawCompass(windAngle);calc();});
+canvas.addEventListener('mouseup',()=>dragging=false);
+canvas.addEventListener('mouseleave',()=>dragging=false);
+canvas.addEventListener('touchstart',e=>{e.preventDefault();dragging=true;windAngle=getAngle(e);drawCompass(windAngle);calc();},{passive:false});
+canvas.addEventListener('touchmove',e=>{e.preventDefault();if(!dragging)return;windAngle=getAngle(e);drawCompass(windAngle);calc();},{passive:false});
+canvas.addEventListener('touchend',()=>dragging=false);
+
+function calc(){
+  const base=parseInt(document.getElementById('base').value)||150;
+  const elevFt=parseInt(document.getElementById('elev').value)||0;
+  const elevDir=document.querySelector('input[name="elev-dir"]:checked').value;
+  const windSpeed=parseFloat(document.getElementById('wind-speed').value)||0;
+  const shotShape=document.getElementById('shot-shape').value;
+  const lie=parseInt(document.getElementById('lie').value);
+  const udType=document.querySelector('input[name="ud-type"]:checked').value;
+  const udGrade=document.querySelector('input[name="ud-grade"]:checked').value;
+  const sideType=document.querySelector('input[name="side-type"]:checked').value;
+  const sideGrade=document.querySelector('input[name="side-grade"]:checked').value;
+  const clubType=document.getElementById('club-type').value;
+  const landSurface=document.getElementById('land-surface').value;
+
+  document.getElementById('lie-out').textContent=lie+'%';
+
+  const {isTail,htMag,crossMag,driftRight}=getWindComponents(windAngle);
+  const rawHeadSpeed=windSpeed*htMag;
+  const crossSpeed=windSpeed*crossMag;
+
+  // Up/down wind adjustment — headwind only
+  let slopeWindMph=0, slopeWindNote='No adjustment';
+  if(windSpeed>0&&!isTail){
+    if(udType==='uphill'){
+      slopeWindMph=uphillWindAdj[udGrade]||0;
+      if(slopeWindMph>0)slopeWindNote='Uphill '+udGrade+' adds +'+slopeWindMph+' mph effective headwind';
+    } else if(udType==='downhill'&&udGrade==='red'){
+      slopeWindMph=downhillWindAdj.red;
+      slopeWindNote='Downhill red reduces headwind by ~'+Math.abs(slopeWindMph)+' mph';
+    }
+  }
+  const effectiveHeadSpeed=Math.max(0,rawHeadSpeed+slopeWindMph);
+
+  const dirLabel=angleToLabel(windAngle);
+  document.getElementById('wind-dir-display').textContent=dirLabel;
+  document.getElementById('wind-dir-sub').textContent=windSpeed>0?'wind blowing '+dirLabel+' \u2014 '+getWindDesc(windAngle):'set speed to activate';
+  document.getElementById('comp-ht').textContent=windSpeed>0?(Math.round(rawHeadSpeed*10)/10)+' mph '+(isTail?'tail':'head'):'0 mph';
+  document.getElementById('comp-cross').textContent=windSpeed>0?(Math.round(crossSpeed*10)/10)+' mph '+(driftRight?'drifts R':'drifts L'):'0 mph';
+
+  let play=base;
+  const parts=[];
+
+  const elevYds=Math.round(elevFt/3);
+  if(elevDir==='down'&&elevYds){play-=elevYds;parts.push('&minus;'+elevYds+' elev (below)');}
+  else if(elevDir==='up'&&elevYds){play+=elevYds;parts.push('+'+elevYds+' elev (above)');}
+
+  if(windSpeed>0){
+    if(!isTail&&effectiveHeadSpeed>0.1){
+      const windYdAdj=clubType==='driver'?Math.round(effectiveHeadSpeed):Math.round(interp(ironCarries,headMultArr,base)*effectiveHeadSpeed);
+      play+=windYdAdj;
+      parts.push('+'+windYdAdj+' yds headwind'+(slopeWindMph!==0?' (slope adj.)':''));
+    } else if(isTail&&rawHeadSpeed>0.1){
+      const windYdAdj=clubType==='driver'?Math.round(rawHeadSpeed):Math.round(interp(ironCarries,tailMultArr,base)*rawHeadSpeed);
+      play-=windYdAdj;
+      parts.push('&minus;'+windYdAdj+' yds tailwind');
+    }
+  }
+
+  let crossGrids=0;
+  if(windSpeed>0&&crossSpeed>0.1){
+    crossGrids=clubType==='driver'?Math.round(crossSpeed*1.75):Math.round(interp(ironCarries,crossMultArr,base)*crossSpeed);
+  }
+
+  const liePenalty=base-Math.round(base*(lie/100));
+  if(liePenalty>0){play+=liePenalty;parts.push('+'+liePenalty+' lie ('+lie+'%)');}
+
+  const rollout=getRollout(clubType,shotShape,landSurface,base);
+  if(rollout!==0){play-=rollout;parts.push('&minus;'+rollout+' rollout ('+clubType+'/'+landSurface+')');}
+
+  play=Math.round(play);
+
+  // Side dispersion
+  let dispYds=0,dispAimDir='';
+  if(sideType!=='none'){
+    dispYds=getSideDispersion(sideGrade,base);
+    // ball drifts left → aim right to compensate, ball drifts right → aim left
+    dispAimDir=sideType==='left'?'right':'left';
+  }
+
+  // Wind aim
+  const windAimDir=driftRight?'left':'right';
+  let windAimDisplay='—',windAimSub='no crosswind',windAimInstruction='Aim straight at pin';
+  if(crossGrids>0){
+    windAimDisplay=crossGrids+' grids '+windAimDir;
+    windAimSub=crossGrids+' grids \u2248 '+Math.round(crossGrids*1.09)+' yds';
+    windAimInstruction='Aim '+crossGrids+' grids to the '+windAimDir+' of pin';
+  }
+
+  // Slope aim
+  let slopeAimDisplay='—',slopeAimSub='no side slope',slopeAimInstruction='No side slope adjustment';
+  if(sideType!=='none'&&dispYds>0){
+    slopeAimDisplay=dispYds+' yds '+dispAimDir;
+    slopeAimSub='ball drifts '+sideType+' ('+sideGrade+')';
+    slopeAimInstruction='Aim '+dispYds+' yds to the '+dispAimDir+' (ball drifts '+sideType+')';
+  }
+
+  document.getElementById('out-play').textContent=play;
+  document.getElementById('out-wind-aim').textContent=windAimDisplay;
+  document.getElementById('out-wind-aim-sub').textContent=windAimSub;
+  document.getElementById('out-slope-aim').textContent=slopeAimDisplay;
+  document.getElementById('out-slope-aim-sub').textContent=slopeAimSub;
+  document.getElementById('aim-wind-instruction').textContent=windAimInstruction;
+  document.getElementById('aim-slope-instruction').textContent=slopeAimInstruction;
+  document.getElementById('aim-slope-wind').textContent=slopeWindNote;
+
+  const bdParts=['<strong>'+base+'</strong> yds base'];
+  if(parts.length)bdParts.push(parts.join(' &nbsp;&middot; '));
+  bdParts.push('= <strong>'+play+'</strong> yds carry');
+  document.getElementById('breakdown').innerHTML=bdParts.join(' &nbsp;&middot; ');
+}
+
+drawCompass(0);
+calc();
+</script>
